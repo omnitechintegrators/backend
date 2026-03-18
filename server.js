@@ -21,8 +21,14 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ["https://myhumrahi.org", "http://localhost:5173"],
+  credentials: true
+}));
 app.use(express.json());
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "API working" });
+});
 app.get("/api", (req, res) => {
   res.json({ message: "API root working" });
 });
