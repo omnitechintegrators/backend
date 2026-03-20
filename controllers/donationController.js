@@ -221,18 +221,17 @@ await donation.save();
 
 
 /* SEND EMAIL */
-
-await sendEmail(
-
-donation.email,
-
-"Donation Receipt",
-
-"<h2>Thank you for your donation</h2><p>Your receipt is attached.</p>",
-
-receiptPath
-
+const emailResult = await sendEmail(
+  donation.email,
+  "Donation Receipt",
+  "<h2>Thank you for your donation</h2><p>Your receipt is attached.</p>",
+  receiptPath
 );
+
+// ❗ DO NOT BREAK PAYMENT FLOW
+if (!emailResult.success) {
+  console.error("❌ Email failed but payment successful:", emailResult.error);
+}
 
 
 
@@ -279,17 +278,20 @@ const donation =
 await Donation.findById(donationId);
 
 
-await sendEmail(
-
-donation.email,
-
-"Donation Receipt",
-
-"<h2>Your receipt is attached</h2>",
-
-donation.certificateUrl
-
+const emailResult = await sendEmail(
+  donation.email,
+  "Donation Receipt",
+  "<h2>Your receipt is attached</h2>",
+  donation.certificateUrl
 );
+
+if (!emailResult.success) {
+  return res.status(500).json({
+    success: false,
+    message: "Failed to send email",
+    error: emailResult.error
+  });
+}
 
 
 res.json({success:true});

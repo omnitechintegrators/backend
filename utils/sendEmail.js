@@ -1,58 +1,54 @@
 import nodemailer from "nodemailer";
 
 const sendEmail = async (to, subject, html, attachmentPath = null) => {
+  try {
+    // ================= TRANSPORTER =================
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-try {
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+    // ================= MAIL OPTIONS =================
+    const mailOptions = {
+      from: `"Humrahi Foundation" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    };
 
+    // ================= ATTACHMENT (OPTIONAL) =================
+    if (attachmentPath) {
+      mailOptions.attachments = [
+        {
+          filename: "certificate.pdf",
+          path: attachmentPath,
+        },
+      ];
+    }
 
-const mailOptions = {
+    // ================= SEND EMAIL =================
+    const info = await transporter.sendMail(mailOptions);
 
-from: `"Humrahi Foundation" <${process.env.EMAIL_USER}>`,
+    console.log("✅ Email sent successfully to:", to);
+    console.log("📨 Message ID:", info.messageId);
 
-to,
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
 
-subject,
+  } catch (error) {
+    console.error("❌ Email sending failed:");
+    console.error(error);
 
-html,
-
-};
-
-
-// ✅ ADD ATTACHMENT SUPPORT (for donation certificate)
-
-if (attachmentPath) {
-
-mailOptions.attachments = [
-
-{
-
-path: attachmentPath
-
-}
-
-];
-
-}
-
-
-await transporter.sendMail(mailOptions);
-
-
-console.log("Email sent successfully");
-
-} catch (error) {
-
-console.log("Email error:", error);
-
-}
-
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 };
 
 export default sendEmail;
