@@ -2,23 +2,24 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (to, subject, html, attachmentPath = null) => {
   try {
-    // ================= TRANSPORTER =================
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_PASS,
-  },
-});
+    const transporter = nodemailer.createTransport({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.BREVO_USER,
+        pass: process.env.BREVO_PASS,
+      },
+    });
 
-const mailOptions = {
-  from: `"Humrahi Foundation" <freefirelogin009@gmail.com>`, // VERIFIED EMAIL
-  to,
-  subject,
-  html,
-};
-    // ================= ATTACHMENT (OPTIONAL) =================
+    const mailOptions = {
+      from: `"Humrahi Foundation" <freefirelogin009@gmail.com>`,
+      to,
+      subject,
+      html,
+      text: html.replace(/<[^>]*>/g, ""),
+    };
+
     if (attachmentPath) {
       mailOptions.attachments = [
         {
@@ -28,10 +29,9 @@ const mailOptions = {
       ];
     }
 
-    // ================= SEND EMAIL =================
     const info = await transporter.sendMail(mailOptions);
 
-    console.log("✅ Email sent successfully to:", to);
+    console.log("✅ Email sent:", to);
     console.log("📨 Message ID:", info.messageId);
 
     return {
@@ -40,8 +40,7 @@ const mailOptions = {
     };
 
   } catch (error) {
-    console.error("❌ Email sending failed:");
-    console.error(error);
+    console.error("❌ Email sending failed:", error);
 
     return {
       success: false,
