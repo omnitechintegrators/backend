@@ -62,16 +62,18 @@ await volunteer.save();
 
 // SEND EMAIL
 
-await sendEmail(
-
-volunteer.email,
-
-"Volunteer Application Approved",
-
-`Dear ${volunteer.name},<br><br>
-Congratulations! Your volunteer application has been approved.<br><br>
-Humrahi Foundation`
+// SEND EMAIL (NON-BLOCKING)
+const emailResult = await sendEmail(
+  volunteer.email,
+  "Volunteer Application Approved",
+  `Dear ${volunteer.name},<br><br>
+  Congratulations! Your volunteer application has been approved.<br><br>
+  Humrahi Foundation`
 );
+
+if (!emailResult.success) {
+  console.error("❌ Approval email failed:", emailResult.error);
+}
 
 res.json({ message: "Volunteer approved" });
 
@@ -101,16 +103,18 @@ await volunteer.save();
 
 // SEND EMAIL
 
-await sendEmail(
-
-volunteer.email,
-
-"Volunteer Application Rejected",
-
-`Dear ${volunteer.name},<br><br>
-We appreciate your interest, but your volunteer application was not selected.<br><br>
-Humrahi Foundation`
+// SEND EMAIL (NON-BLOCKING)
+const emailResult = await sendEmail(
+  volunteer.email,
+  "Volunteer Application Rejected",
+  `Dear ${volunteer.name},<br><br>
+  We appreciate your interest, but your volunteer application was not selected.<br><br>
+  Humrahi Foundation`
 );
+
+if (!emailResult.success) {
+  console.error("❌ Rejection email failed:", emailResult.error);
+}
 
 res.json({ message: "Volunteer rejected" });
 

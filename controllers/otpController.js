@@ -5,76 +5,80 @@ import sendEmail from "../utils/sendEmail.js";
 
 
 export const sendOtp = async (req, res) => {
+  try {
+    const { email, phone } = req.body;
 
-try {
+    const donor = await Donation.findOne({ email, phone });
 
-const { email, phone } = req.body;
+    if (!donor) {
+      return res.status(404).json({ success: false });
+    }
 
-const donor = await Donation.findOne({ email, phone });
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-if (!donor)
-return res.status(404).json({ success:false });
+    await Otp.deleteMany({ email });
 
-const otp = Math.floor(100000 + Math.random()*900000).toString();
+    await Otp.create({
+      email,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
 
-await Otp.deleteMany({ email });
+    // ✅ HANDLE EMAIL SAFELY
+    const emailResult = await sendEmail(
+      email,
+      "OTP Verification",
+      `<h2>Your OTP: ${otp}</h2>`
+    );
 
-await Otp.create({
+    if (!emailResult.success) {
+      console.error("❌ OTP Email failed:", emailResult.error);
 
-email,
-otp,
-expiresAt: new Date(Date.now()+5*60*1000)
+      return res.status(500).json({
+        success: false,
+        message: "OTP generated but email failed",
+        error: emailResult.error,
+      });
+    }
 
-});
+    res.json({
+      success: true,
+      message: "OTP sent successfully",
+    });
 
-await sendEmail(
+  } catch (error) {
+    console.error("❌ OTP error:", error);
 
-email,
-
-"OTP Verification",
-
-`<h2>Your OTP: ${otp}</h2>`
-
-);
-
-res.json({ success:true });
-
-}
-catch{
-res.status(500).json({ success:false });
-}
-
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 };
 
 
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
 
-export const verifyOtp = async (req,res)=>{
+    const record = await Otp.findOne({ email, otp });
 
-try{
+    if (!record) {
+      return res.status(400).json({ success: false });
+    }
 
-const { email, otp } = req.body;
+    const donations = await Donation.find({ email }).sort({ createdAt: -1 });
 
-const record = await Otp.findOne({ email, otp });
+    res.json({
+      success: true,
+      donations,
+    });
 
-if(!record)
-return res.status(400).json({ success:false });
+  } catch (error) {
+    console.error("❌ Verify OTP error:", error);
 
-const donations = await Donation.find({ email })
-.sort({ createdAt:-1 });
-
-res.json({
-
-success:true,
-
-donations
-
-});
-
-}
-catch{
-
-res.status(500).json({ success:false });
-
-}
-
+    res.status(500).json({
+      success: false,
+    });
+  }
 };
