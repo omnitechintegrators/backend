@@ -1,50 +1,40 @@
-import nodemailer from "nodemailer";
+import axios from "axios";
 
 const sendEmail = async (to, subject, html, attachmentPath = null) => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_USER,
-        pass: process.env.BREVO_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: `"Humrahi Foundation" <freefirelogin009@gmail.com>`,
-      to,
-      subject,
-      html,
-      text: html.replace(/<[^>]*>/g, ""),
-    };
-
-    if (attachmentPath) {
-      mailOptions.attachments = [
-        {
-          filename: "certificate.pdf",
-          path: attachmentPath,
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "Humrahi Foundation",
+          email: "freefirelogin009@gmail.com", // verified sender
         },
-      ];
-    }
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: subject,
+        htmlContent: html,
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent via API:", response.data);
 
-    console.log("✅ Email sent:", to);
-    console.log("📨 Message ID:", info.messageId);
-
-    return {
-      success: true,
-      messageId: info.messageId,
-    };
+    return { success: true };
 
   } catch (error) {
-    console.error("❌ Email sending failed:", error);
+    console.error("❌ Email API Error:", error.response?.data || error.message);
 
     return {
       success: false,
-      error: error.message,
+      error: error.response?.data || error.message,
     };
   }
 };
