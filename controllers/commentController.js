@@ -2,8 +2,7 @@ import Comment from "../models/Comment.js";
 import Volunteer from "../models/Volunteer.js";
 import Donation from "../models/Donation.js";
 import sendEmail from "../utils/sendEmail.js"; // ✅ USE BREVO API
-import fs from "fs";
-import path from "path";
+import cloudinary from "../config/cloudinary.js";
 
 // ================= OTP STORE (TEMPORARY MEMORY)
 const otpStore = new Map();
@@ -126,13 +125,24 @@ export const verifyOTPAndSubmitComment = async (req, res) => {
     }
 
     // PHOTO PATH
-    const photoPath = `/uploads/comments/${req.file.filename}`;
+let photo = "";
+let public_id = "";
+
+if (req.file) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "humrahi/comments"
+  });
+
+  photo = result.secure_url;
+  public_id = result.public_id;
+}
 
     // SAVE COMMENT
     const newComment = new Comment({
       name,
       email,
-      photo: photoPath,
+ photo,
+public_id,
       rating,
       comment,
       userType: storedOTP.userType,
@@ -224,11 +234,10 @@ export const deleteComment = async (req, res) => {
     }
 
     // DELETE IMAGE
-    const imagePath = path.join("backend", comment.photo);
-
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-    }
+ // 🔥 DELETE FROM CLOUDINARY
+if (comment.public_id) {
+  await cloudinary.uploader.destroy(comment.public_id);
+}
 
     await Comment.findByIdAndDelete(id);
 

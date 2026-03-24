@@ -45,6 +45,9 @@ const commentSchema = new mongoose.Schema(
         required: true,
         enum: ["volunteer", "donor"]
     },
+    public_id: {
+  type: String
+},
 
     isVerified:
     {
