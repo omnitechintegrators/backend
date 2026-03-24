@@ -1,33 +1,34 @@
 import express from "express";
 import multer from "multer";
-import fs from "fs";
+import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = "uploads/blog";
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+// temporary storage (no local saving)
+const upload = multer({ dest: "temp/" });
+
+router.post("/", upload.single("image"), async (req, res) => {
+  try {
+    // upload to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "humrahi/editor"
+    });
+
+    // EditorJS required response format
+    res.json({
+      success: 1,
+      file: {
+        url: result.secure_url
+      }
+    });
+
+  } catch (error) {
+    console.error("Upload Error:", error);
+
+    res.status(500).json({
+      success: 0
+    });
   }
-});
-
-const upload = multer({ storage });
-
-router.post("/", upload.single("image"), (req, res) => {
-
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/blog/${req.file.filename}`;
-
-  res.json({
-    success: 1,
-    file: {
-      url: imageUrl
-    }
-  });
-
 });
 
 export default router;
