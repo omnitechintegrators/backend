@@ -1,5 +1,5 @@
 import Event from "../models/Event.js";
-
+import cloudinary from "../config/cloudinary.js";
 
 // ================= CREATE EVENT =================
 
@@ -25,9 +25,15 @@ aim
 
 
 
-const image = req.file
-? `/uploads/events/${req.file.filename}`
-: "";
+let image = "";
+
+if (req.file) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "humrahi/events"
+  });
+
+  image = result.secure_url;
+}
 
 
 
@@ -109,12 +115,12 @@ try{
 const data = req.body;
 
 
-if(req.file){
+if (req.file) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "humrahi/events"
+  });
 
-data.image =
-
-`/uploads/events/${req.file.filename}`;
-
+  data.image = result.secure_url;
 }
 
 
