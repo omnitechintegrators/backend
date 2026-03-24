@@ -2,33 +2,33 @@ import mongoose from "mongoose";
 
 const adminSchema = new mongoose.Schema({
 
-name:{
-type:String,
-required:true
-},
+  name: {
+    type: String,
+    required: true
+  },
 
-email:{
-type:String,
-required:true,
-unique:true
-},
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
 
-password:{
-type:String,
-required:true
-},
+  password: {
+    type: String,
+    required: true
+  },
 
-role:{
-type:String,
-enum:["owner","administrator","admin"],
-default:"admin"
-},
+  role: {
+    type: String,
+    enum: ["Owner", "Administrator", "Admin"], // ✅ FIXED
+    default: "Admin"
+  },
 
-createdAt:{
-type:Date,
-default:Date.now
-}
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 
 });
 
-export default mongoose.model("Admin",adminSchema);
+export default mongoose.model("Admin", adminSchema);
