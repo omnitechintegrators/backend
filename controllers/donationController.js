@@ -5,27 +5,26 @@ import sendEmail from "../utils/sendEmail.js";
 import generateReceipt from "../utils/generateReceipt.js";
 import numberToWords from "number-to-words";
 import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
+
 
 const { toWords } = numberToWords;
 
 /* ================= CLOUDINARY UPLOAD ================= */
-
 const uploadPDFToCloudinary = (buffer, certificateId) => {
   return new Promise((resolve, reject) => {
-const stream = cloudinary.uploader.upload_stream(
-  {
-    folder: "humrahi/certificates",
-    resource_type: "raw",
-    public_id: certificateId,
-  },
-  (error, result) => {
-    if (error) reject(error);
-    else resolve(result);
-  }
-);
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "humrahi/certificates",
+        resource_type: "raw",
+        public_id: certificateId,
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
 
-    streamifier.createReadStream(buffer).pipe(stream);
+    stream.end(buffer); // ✅ IMPORTANT FIX
   });
 };
 
