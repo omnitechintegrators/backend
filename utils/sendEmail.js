@@ -39,7 +39,7 @@ const sendEmail = async (to, subject, html, attachmentPath = null) => {
       {
         sender: {
           name: "Humrahi Foundation",
-          email: "freefirelogin009@gmail.com",
+          email: "humrahi2022@gmail.com",
         },
         to: [{ email: to }],
         subject: subject,
