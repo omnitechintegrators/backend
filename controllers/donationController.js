@@ -12,17 +12,18 @@ const { toWords } = numberToWords;
 /* ================= CLOUDINARY UPLOAD ================= */
 const uploadPDFToCloudinary = (buffer, certificateId) => {
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "humrahi/certificates",
-        resource_type: "raw",
-        public_id: certificateId,
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
+  const stream = cloudinary.uploader.upload_stream(
+  {
+    folder: "humrahi/certificates",
+    resource_type: "image",   // ✅ changed
+    public_id: certificateId,
+    format: "pdf",            // ✅ keep
+  },
+  (error, result) => {
+    if (error) reject(error);
+    else resolve(result);
+  }
+);
 
     stream.end(buffer); // ✅ IMPORTANT FIX
   });
