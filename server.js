@@ -17,7 +17,7 @@ import blogRoutes from "./routes/blogRoutes.js";
 import editorImageUpload from "./routes/editorImageUpload.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
-
+import contactRoutes from "./routes/contactRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -64,7 +64,7 @@ app.use("/api/test", testRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/comments", commentRoutes);
-
+app.use("/api/contact", contactRoutes);
 // ⚠️ KEEP SAME (NO BREAKING CHANGE)
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin", adminAuthRoutes);
