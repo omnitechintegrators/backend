@@ -1,44 +1,39 @@
 import mongoose from "mongoose";
 
-const donationSchema = new mongoose.Schema({
-
-name:String,
-
-email:String,
-
-phone:String,
-
-address:String,
-
-pan:String,
-
-message:String,
-
-amount:Number,
-
-amountWords:String,
-
-transactionId:String,
-
-paymentMethod:String,
-
-certificateId:String,
-
-certificateUrl:String,
-
-financialYear:String,
-
-status:String
-
-},
-
+const donationSchema = new mongoose.Schema(
 {
+  /* ================= DONOR INFO ================= */
+  name: { type: String, required: true },
+  email: { type: String, required: true, index: true },
+  phone: String,
+  address: String,
+  pan: String,
+  message: String,
 
-timestamps:true
+  /* ================= AMOUNT ================= */
+  amount: { type: Number, required: true },
+  amountWords: String,
 
-});
+  /* ================= PAYMENT ================= */
+  transactionId: { type: String, required: true, index: true },
+  paymentMethod: String,
 
-export default mongoose.model(
-"Donation",
-donationSchema
+  /* ================= CERTIFICATE ================= */
+  certificateId: { type: String, required: true, index: true },
+  certificateUrl: String,
+  certificatePublicId: String,
+
+  /* ================= META ================= */
+  financialYear: String,
+  status: {
+    type: String,
+    enum: ["success", "failed", "pending"],
+    default: "success",
+  },
+},
+{
+  timestamps: true,
+}
 );
+
+export default mongoose.model("Donation", donationSchema);
