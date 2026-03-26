@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit";
-
+import path from "path";
 const generateReceipt = async (donation) => {
 
   return new Promise((resolve, reject) => {
@@ -19,13 +19,21 @@ const generateReceipt = async (donation) => {
     });
 
     /* ================= REGISTER FONT ================= */
-    doc.registerFont("normal", "./fonts/NotoSans-Regular.ttf");
+  doc.registerFont(
+  "normal",
+  path.join(process.cwd(), "fonts/NotoSans-Regular.ttf")
+);
 
     /* ================= BORDER ================= */
     doc.rect(40, 40, 520, 740).stroke();
 
     /* ================= LOGO ================= */
-    doc.image("assets/logo.png", 50, 50, { width: 80 });
+  doc.image(
+  path.join(process.cwd(), "assets/logo.png"),
+  50,
+  50,
+  { width: 80 }
+);
 
     /* ================= HEADER ================= */
     doc
@@ -128,14 +136,23 @@ const generateReceipt = async (donation) => {
       .fontSize(18)
       .text("Thank You", 320, signY);
 
-    doc.image("assets/stamp.png", 250, signY + 50, { width: 100 });
+   doc.image(
+  path.join(process.cwd(), "assets/stamp.png"),
+  250,
+  signY + 50,
+  { width: 100 }
+);
 
     doc
       .font("Helvetica-Bold")
       .fontSize(12)
       .text("For Humrahi Foundation", 360, signY + 40);
-
-    doc.image("assets/signature.png", 380, signY + 60, { width: 100 });
+doc.image(
+  path.join(process.cwd(), "assets/signature.png"),
+  380,
+  signY + 60,
+  { width: 100 }
+);
 
     doc.font("Helvetica").text("Signature", 400, signY + 120);
 
