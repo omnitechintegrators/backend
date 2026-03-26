@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import path from "path";
+import fs from "fs";
 const generateReceipt = async (donation) => {
 
   return new Promise((resolve, reject) => {
@@ -19,22 +20,21 @@ const generateReceipt = async (donation) => {
     });
 
     /* ================= REGISTER FONT ================= */
-  doc.registerFont(
-  "normal",
-  path.join(process.cwd(), "fonts/NotoSans-Regular.ttf")
-);
+const fontPath = path.join(process.cwd(), "fonts/NotoSans-Regular.ttf");
+
+if (fs.existsSync(fontPath)) {
+  doc.registerFont("normal", fontPath);
+}
 
     /* ================= BORDER ================= */
     doc.rect(40, 40, 520, 740).stroke();
 
     /* ================= LOGO ================= */
-  doc.image(
-  path.join(process.cwd(), "assets/logo.png"),
-  50,
-  50,
-  { width: 80 }
-);
+const logoPath = path.join(process.cwd(), "assets/logo.png");
 
+if (fs.existsSync(logoPath)) {
+  doc.image(logoPath, 50, 50, { width: 80 });
+}
     /* ================= HEADER ================= */
     doc
       .font("Helvetica-Bold")
@@ -136,24 +136,21 @@ const generateReceipt = async (donation) => {
       .fontSize(18)
       .text("Thank You", 320, signY);
 
-   doc.image(
-  path.join(process.cwd(), "assets/stamp.png"),
-  250,
-  signY + 50,
-  { width: 100 }
-);
+const stampPath = path.join(process.cwd(), "assets/stamp.png");
+
+if (fs.existsSync(stampPath)) {
+  doc.image(stampPath, 250, signY + 50, { width: 100 });
+}
 
     doc
       .font("Helvetica-Bold")
       .fontSize(12)
       .text("For Humrahi Foundation", 360, signY + 40);
-doc.image(
-  path.join(process.cwd(), "assets/signature.png"),
-  380,
-  signY + 60,
-  { width: 100 }
-);
+const signPath = path.join(process.cwd(), "assets/signature.png");
 
+if (fs.existsSync(signPath)) {
+  doc.image(signPath, 380, signY + 60, { width: 100 });
+}
     doc.font("Helvetica").text("Signature", 400, signY + 120);
 
     /* ================= FOOTER ================= */
