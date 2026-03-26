@@ -219,13 +219,11 @@ receiptPath;
 await donation.save();
 
 
-
-/* SEND EMAIL */
-const emailResult = await sendEmail(
+await sendEmail(
   donation.email,
-  "Donation Receipt",
-  "<h2>Thank you for your donation</h2><p>Your receipt is attached.</p>",
-  receiptPath
+  "Thank You for Your Donation ❤️",
+  "<h2>Thank you for supporting Humrahi Foundation</h2>",
+  "<p>You can view and download your receipt from the website anytime.</p>"
 );
 
 // ❗ DO NOT BREAK PAYMENT FLOW
@@ -265,49 +263,3 @@ message:"Payment verification failed"
 };
 
 
-
-/* ================= SEND CERTIFICATE EMAIL ================= */
-
-export const sendCertificateEmail = async (req,res)=>{
-
-try{
-
-const { donationId } = req.body;
-
-const donation =
-await Donation.findById(donationId);
-
-
-const emailResult = await sendEmail(
-  donation.email,
-  "Donation Receipt",
-  "<h2>Your receipt is attached</h2>",
-  donation.certificateUrl
-);
-
-if (!emailResult.success) {
-  return res.status(500).json({
-    success: false,
-    message: "Failed to send email",
-    error: emailResult.error
-  });
-}
-
-
-res.json({success:true});
-
-}
-
-catch(error){
-
-console.log(error);
-
-res.status(500).json({
-
-success:false
-
-});
-
-}
-
-};
