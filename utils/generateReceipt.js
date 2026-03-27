@@ -122,10 +122,11 @@ if (fs.existsSync(logoPath)) {
 
     doc.rect(60, y, 200, 40).stroke();
 
-    doc
-      .font("normal")
-      .fontSize(14)
-      .text(`₹ ${donation.amount}.00`, 80, y + 12);
+const hasNotoSans = fs.existsSync(path.join(process.cwd(), "fonts/NotoSans-Regular.ttf"));
+doc
+  .font(hasNotoSans ? "normal" : "Helvetica")
+  .fontSize(14)
+  .text(`Rs. ${donation.amount}.00`, 80, y + 12);
 
     /* ================= SIGNATURE ================= */
     const footerTop = 720;

@@ -15,7 +15,7 @@ const uploadPDFToCloudinary = (buffer, certificateId) => {
   const stream = cloudinary.uploader.upload_stream(
   {
     folder: "humrahi/certificates",
-    resource_type: "image",   // ✅ changed
+    resource_type: "raw",   // ✅ changed
     public_id: certificateId,
     format: "pdf",            // ✅ keep
   },
@@ -152,20 +152,24 @@ export const verifyPayment = async (req, res) => {
     }
 
     /* SAVE CLOUDINARY DATA */
-    donation.certificateUrl = cloudinaryResult.secure_url;
-    donation.certificatePublicId = cloudinaryResult.public_id;
+const rawUrl = cloudinaryResult.secure_url;
+const pdfUrl = rawUrl.endsWith(".pdf") ? rawUrl : rawUrl + ".pdf";
+donation.certificateUrl = pdfUrl;
+donation.certificatePublicId = cloudinaryResult.public_id;
 
     /* SAVE ONCE */
     await donation.save();
 
     /* SEND EMAIL (NON-BLOCKING SAFE) */
     const emailResult = await sendEmail(
-      donation.email,
-      "Thank You for Your Donation ❤️",
-      "<h2>Thank you for supporting Humrahi Foundation</h2>",
-      "<p>You can view and download your receipt from the website anytime.</p>"
-    );
-
+  donation.email,
+  "Thank You for Your Donation ❤️",
+  `<h2>Thank you for supporting Humrahi Foundation</h2>
+   <p>Your donation of ₹${donation.amount} has been received successfully.</p>
+   <p>Receipt No: ${donation.certificateId}</p>
+   <p>You can view and download your receipt here:</p>
+   <a href="${donation.certificateUrl}" target="_blank">Download Receipt</a>`
+);
     if (!emailResult?.success) {
       console.error(
         "❌ Email failed but payment successful:",
