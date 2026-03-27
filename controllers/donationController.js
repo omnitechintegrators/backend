@@ -5,56 +5,59 @@ import sendEmail from "../utils/sendEmail.js";
 import generateReceipt from "../utils/generateReceipt.js";
 import numberToWords from "number-to-words";
 import cloudinary from "../config/cloudinary.js";
-import axios from "axios";
+
 
 const { toWords } = numberToWords;
 
 /* ================= CLOUDINARY UPLOAD ================= */
 const uploadPDFToCloudinary = (buffer, certificateId) => {
   return new Promise((resolve, reject) => {
-  const stream = cloudinary.uploader.upload_stream(
-  {
-    folder: "humrahi/certificates",
-    resource_type: "raw",
-    public_id: `${certificateId}.pdf`,
-  },
-  (error, result) => {
-    if (error) reject(error);
-    else resolve(result);
-  }
-);
-
-    stream.end(buffer); // ✅ IMPORTANT FIX
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "humrahi/certificates",
+        resource_type: "raw",
+        public_id: `${certificateId}.pdf`,
+        type: "authenticated",  // ✅ allows signed URL generation
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    stream.end(buffer);
   });
 };
-/* ================= downlode ================= */
+/* ================= download ================= */
 export const downloadReceipt = async (req, res) => {
   try {
     const { certificateId } = req.params;
 
     const donation = await Donation.findOne({ certificateId });
 
-    if (!donation) {
+    if (!donation || !donation.certificatePublicId) {
       return res.status(404).json({ message: "Receipt not found" });
     }
 
-    const response = await axios.get(donation.certificateUrl, {
-      responseType: "arraybuffer",
-    });
-
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${certificateId}.pdf"`
+    /* GENERATE SIGNED URL — valid for 1 hour */
+    const signedUrl = cloudinary.utils.private_download_url(
+      donation.certificatePublicId,
+      "pdf",
+      {
+        resource_type: "raw",
+        type: "authenticated",
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        attachment: true,
+      }
     );
 
-    res.send(response.data);
+    /* REDIRECT TO SIGNED URL */
+    res.redirect(signedUrl);
+
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Download failed" });
   }
 };
-
 /* ================= CREATE ORDER ================= */
 
 export const createOrder = async (req, res) => {
@@ -177,9 +180,9 @@ export const verifyPayment = async (req, res) => {
       });
     }
 
-    /* SAVE CLOUDINARY DATA */
-donation.certificateUrl = cloudinaryResult.secure_url;
+/* SAVE CLOUDINARY DATA */
 donation.certificatePublicId = cloudinaryResult.public_id;
+donation.certificateUrl = cloudinaryResult.public_id; // save public_id to generate signed URL later
 
     /* SAVE ONCE */
     await donation.save();
