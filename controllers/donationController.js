@@ -15,9 +15,8 @@ const uploadPDFToCloudinary = (buffer, certificateId) => {
   const stream = cloudinary.uploader.upload_stream(
   {
     folder: "humrahi/certificates",
-    resource_type: "raw",   // ✅ changed
-    public_id: certificateId,
-    format: "pdf",            // ✅ keep
+    resource_type: "raw",
+    public_id: `${certificateId}.pdf`,
   },
   (error, result) => {
     if (error) reject(error);
@@ -152,9 +151,7 @@ export const verifyPayment = async (req, res) => {
     }
 
     /* SAVE CLOUDINARY DATA */
-const rawUrl = cloudinaryResult.secure_url;
-const pdfUrl = rawUrl.endsWith(".pdf") ? rawUrl : rawUrl + ".pdf";
-donation.certificateUrl = pdfUrl;
+donation.certificateUrl = cloudinaryResult.secure_url;
 donation.certificatePublicId = cloudinaryResult.public_id;
 
     /* SAVE ONCE */
