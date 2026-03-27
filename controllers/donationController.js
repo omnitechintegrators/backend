@@ -192,10 +192,8 @@ donation.certificateUrl = cloudinaryResult.public_id; // save public_id to gener
   donation.email,
   "Thank You for Your Donation ❤️",
   `<h2>Thank you for supporting Humrahi Foundation</h2>
-   <p>Your donation of ₹${donation.amount} has been received successfully.</p>
-   <p>Receipt No: ${donation.certificateId}</p>
-   <p>You can view and download your receipt here:</p>
-   <a href="${donation.certificateUrl}" target="_blank">Download Receipt</a>`
+   <p>You can download your receipt here:</p>
+   <a href="https://myhumrahi.org/donate#downloadCertificate" target="_blank">Download Receipt</a>`
 );
     if (!emailResult?.success) {
       console.error(
