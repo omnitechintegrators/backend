@@ -5,7 +5,7 @@ import sendEmail from "../utils/sendEmail.js";
 import generateReceipt from "../utils/generateReceipt.js";
 import numberToWords from "number-to-words";
 import cloudinary from "../config/cloudinary.js";
-
+import axios from "axios";
 
 const { toWords } = numberToWords;
 
@@ -26,6 +26,33 @@ const uploadPDFToCloudinary = (buffer, certificateId) => {
 
     stream.end(buffer); // ✅ IMPORTANT FIX
   });
+};
+/* ================= downlode ================= */
+export const downloadReceipt = async (req, res) => {
+  try {
+    const { certificateId } = req.params;
+
+    const donation = await Donation.findOne({ certificateId });
+
+    if (!donation) {
+      return res.status(404).json({ message: "Receipt not found" });
+    }
+
+    const response = await axios.get(donation.certificateUrl, {
+      responseType: "arraybuffer",
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${certificateId}.pdf"`
+    );
+
+    res.send(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Download failed" });
+  }
 };
 
 /* ================= CREATE ORDER ================= */

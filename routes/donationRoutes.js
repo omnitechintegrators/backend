@@ -8,6 +8,7 @@ router.post("/create-order", donationController.createOrder);
 
 router.post("/verify-payment", donationController.verifyPayment);
 
+router.get("/download/:certificateId", donationController.downloadReceipt);
 
 export default router;
 
